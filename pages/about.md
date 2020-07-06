@@ -29,6 +29,7 @@ Follow along at my [blog](/blog) to read about what I create and learn. Thanks f
 - Auto Layout & Programmatic UI
 - Core Data
 - Combine
+- REST
 
 
 <div class="row">
