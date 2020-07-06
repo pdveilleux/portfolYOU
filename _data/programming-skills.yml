@@ -1,0 +1,11 @@
+- name: Swift
+  #percentage: 90
+  color: danger
+
+- name: UIKit
+  #percentage: 80
+  color:
+
+- name: Auto Layout & Programmatic UI
+  #percentage: 70
+  color: dark
