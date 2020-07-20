@@ -1,7 +1,7 @@
 ---
 title: Stop, Stop, Stop...
 description: A letter to my future self about not reinventing the wheel.
-tags: [iOS Development]
+tags: [iOS Development, Composed]
 style: fill
 color: danger
 ---

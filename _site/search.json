@@ -1,9 +1,17 @@
 [
   
     {
+      "title"    : "Creating an Editable Data Text View",
+      "category" : "",
+      "tags"     : "iOS Development, Composed",
+      "url"      : "/blog/creating-an-editable-data-text-view",
+      "date"     : "2020-07-20 00:00:00 -0500"
+    } ,
+  
+    {
       "title"    : "Adding a Combine Subscriber to NSManagedObject",
       "category" : "",
-      "tags"     : "iOS Development, Core Data",
+      "tags"     : "iOS Development, Core Data, Composed",
       "url"      : "/blog/adding-a-combine-subscriber-to-nsmanagedobject",
       "date"     : "2020-07-06 00:00:00 -0500"
     } ,
@@ -11,7 +19,7 @@
     {
       "title"    : "Stop, Stop, Stop...",
       "category" : "",
-      "tags"     : "iOS Development",
+      "tags"     : "iOS Development, Composed",
       "url"      : "/blog/stop-stop-stop",
       "date"     : "2020-07-01 00:00:00 -0500"
     } 

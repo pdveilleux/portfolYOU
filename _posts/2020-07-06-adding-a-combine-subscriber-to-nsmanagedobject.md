@@ -1,7 +1,7 @@
 ---
 title: Adding a Combine Subscriber to NSManagedObject
 description: Working around a crash after deleting the entity.
-tags: [iOS Development, Core Data]
+tags: [iOS Development, Core Data, Composed]
 style: border
 color: primary
 ---

@@ -45,9 +45,9 @@
   </button>
 
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    <div class="navbar-nav ml-auto"><a class="nav-item nav-link active" href="/projects/">Projects</a>
+    <div class="navbar-nav ml-auto"><a class="nav-item nav-link " href="/projects/">Projects</a>
 
-      <a class="nav-item nav-link " href="/blog/">Blog</a>
+      <a class="nav-item nav-link active" href="/blog/">Blog</a>
 
       <a class="nav-item nav-link " href="/about/">About</a>
 
@@ -58,7 +58,43 @@
 
 </nav>
   <div class="col-lg-10 mx-auto mt-5 post">
-  
+  <h1><b>Creating an Editable Data Text View</b></h1>
+
+<p class="post-metadata text-muted">
+  20 July 2020 -  
+  <b>less than 1 min read time</b>
+
+  <br>Tags: 
+    
+    <a class="text-decoration-none no-underline" href="/blog/tags#ios-development">
+      <span class="tag badge badge-pill text-primary border border-primary">iOS Development</span>
+    </a>
+    
+    <a class="text-decoration-none no-underline" href="/blog/tags#composed">
+      <span class="tag badge badge-pill text-primary border border-primary">Composed</span>
+    </a>
+    </p>
+
+<p>I often want <code class="language-plaintext highlighter-rouge">UITextView</code> to allow both editing and detection of different types of data within its text property. Both of these features are supported individually so you can have an editable text view that the user can type in and modify and you can have a text view that detects data like phone numbers and links. But having both so that a user can edit, add, and delete text and then have whatever actionable information they’ve added be selectable is not supported natively.</p>
+
+<p><code class="language-plaintext highlighter-rouge">EditableDataTextView</code> supports this!</p>
+
+<h3 id="creating-an-instance">Creating an Instance</h3>
+
+<p>Instantiate one the same as you would with <code class="language-plaintext highlighter-rouge">UITextView</code>.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="nv">textView</span> <span class="o">=</span> <span class="kt">EditableDataTextView</span><span class="p">()</span>
+<span class="n">textView</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">"Hello, World!"</span>
+</code></pre></div></div>
+
+<p>Almost everything else is self contained in the class. The only thing you have to do is update <code class="language-plaintext highlighter-rouge">isEditable</code> when the user is done editing so that data detection and the tap recognizer are enabled again.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">textView</span><span class="o">.</span><span class="n">isEditable</span> <span class="o">=</span> <span class="kc">false</span>
+</code></pre></div></div>
+
+<p>And that’s it! You can check out my gist below or on <a href="https://gist.github.com/pdveilleux/f2f72328fca3c0bef5277e1cda96697a">GitHub</a>.<script src="https://gist.github.com/f2f72328fca3c0bef5277e1cda96697a.js"> </script></p>
+
+
 
 </div>
   </main>
