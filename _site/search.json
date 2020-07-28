@@ -1,6 +1,14 @@
 [
   
     {
+      "title"    : "Creating a Table View with Various Actions",
+      "category" : "",
+      "tags"     : "iOS Development, Composed",
+      "url"      : "/blog/creating-a-table-view-with-various-actions",
+      "date"     : "2020-07-28 00:00:00 -0500"
+    } ,
+  
+    {
       "title"    : "Creating an Editable Data Text View",
       "category" : "",
       "tags"     : "iOS Development, Composed",

@@ -25,6 +25,6 @@ Almost everything else is self contained in the class. The only thing you have t
 textView.isEditable = false
 ```
 
-And that's it! You can check out my gist below or on [GitHub](https://gist.github.com/pdveilleux/f2f72328fca3c0bef5277e1cda96697a).
+And that's it! You can check out my gist below or my repo on [GitHub](https://github.com/pdveilleux/Editable-Data-Text-View).
 
 {%- gist f2f72328fca3c0bef5277e1cda96697a %}

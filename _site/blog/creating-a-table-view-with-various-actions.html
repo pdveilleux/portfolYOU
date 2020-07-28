@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<!--
+  portfolYOU Jekyll theme by Youssef Raafat
+  Free for personal and commercial use under the MIT license
+  https://github.com/YoussefRaafatNasry/portfolYOU
+-->
+
+<html lang="en" class="h-100">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Swift. iOS Dev. Apps.">
+
+  <title>pdveilleux.dev</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico">
+
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.10.0/css/all.css">
+
+  <!-- Bootstrap CSS CDN -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+  <!-- Animate CSS CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.css" type="text/css"/>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+
+</head>
+
+
+<body class="d-flex flex-column h-100">
+
+  <main class="flex-shrink-0 container mt-5">
+  <nav class="navbar navbar-expand-lg navbar-light">
+
+  <a class="navbar-brand" href="/"><h5><b>pdveilleux.dev</b></h5></a>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav ml-auto"><a class="nav-item nav-link " href="/projects/">Projects</a>
+
+      <a class="nav-item nav-link active" href="/blog/">Blog</a>
+
+      <a class="nav-item nav-link " href="/about/">About</a>
+
+      
+
+    </div>
+  </div>
+
+</nav>
+  <div class="col-lg-10 mx-auto mt-5 post">
+  <h1><b>Creating a Table View with Various Actions</b></h1>
+
+<p class="post-metadata text-muted">
+  28 July 2020 -  
+  <b>18 mins read time</b>
+
+  <br>Tags: 
+    
+    <a class="text-decoration-none no-underline" href="/blog/tags#ios-development">
+      <span class="tag badge badge-pill text-primary border border-primary">iOS Development</span>
+    </a>
+    
+    <a class="text-decoration-none no-underline" href="/blog/tags#composed">
+      <span class="tag badge badge-pill text-primary border border-primary">Composed</span>
+    </a>
+    </p>
+
+<p>For version 1.0 of <a href="/projects/1-composed">Composed</a> I rewrote the menu to be concise, reusable, and highly modifiable for any changes and additions I might make to it down the road. In this post I’m going to share with you how to create one like it.</p>
+
+<p>What’s important to know about this menu is that there are different types of actions that the user will be able to make such as composing an email and opening a URL. Using the method I’ve made I can easily insert new menu options, reorder them, and even extend the functionality for other actions not yet defined.</p>
+
+<p>Below is a screenshot of the menu with the types of actions each row will perform.</p>
+
+<figure class="figure w-100">
+  <img src="/assets/posts/2020-07-28-creating-a-table-view-with-various-actions/table-view-with-various-actions-header.png" class="figure-img img-fluid rounded" alt="" /></figure>
+
+<h2 id="creating-the-data-source">Creating the Data Source</h2>
+
+<h4 id="defining-the-model">Defining the Model</h4>
+
+<p>Let’s get started by creating an enum and adding the different sections we want in our table.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">enum</span> <span class="kt">MenuSection</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">settings</span>
+    <span class="k">case</span> <span class="n">contact</span>
+    <span class="k">case</span> <span class="n">support</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We can add a property for the title of each section…</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">enum</span> <span class="kt">MenuSection</span> <span class="p">{</span>
+    <span class="o">...</span>
+
+    <span class="k">var</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="k">self</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">settings</span><span class="p">:</span>         <span class="k">return</span> <span class="s">"Settings"</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">contact</span><span class="p">:</span>          <span class="k">return</span> <span class="s">"Reach out"</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">support</span><span class="p">:</span>          <span class="k">return</span> <span class="s">"Help"</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>…and a property that defines the items for each section.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">enum</span> <span class="kt">MenuSection</span> <span class="p">{</span>
+    <span class="o">...</span>
+
+    <span class="k">var</span> <span class="nv">items</span><span class="p">:</span> <span class="p">[</span><span class="kt">MenuOption</span><span class="p">]</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="k">self</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">settings</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">contact</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">support</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here, we can see that <code class="language-plaintext highlighter-rouge">items</code> are defined as an array of type <code class="language-plaintext highlighter-rouge">MenuOption</code> which is a protocol that defines the essentials for each row in our table. Let’s take a look at it now and come back to populating the arrays later!</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protocol</span> <span class="kt">MenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+    <span class="k">var</span> <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+    <span class="k">var</span> <span class="nv">accessoryType</span><span class="p">:</span> <span class="kt">UITableViewCell</span><span class="o">.</span><span class="kt">AccessoryType</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The title and image will be unique to each row but I want a default accessory type. We can use protocol extensions to give <code class="language-plaintext highlighter-rouge">MenuOption</code> some default behavior. This will make the definition and initialization of the structs we create in a bit easier because <code class="language-plaintext highlighter-rouge">accessoryType</code> won’t have to be defined since it will have a default value.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">extension</span> <span class="kt">MenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">accessoryType</span><span class="p">:</span> <span class="kt">UITableViewCell</span><span class="o">.</span><span class="kt">AccessoryType</span> <span class="p">{</span> <span class="k">return</span> <span class="o">.</span><span class="k">none</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="specialized-actions-using-protocol-inheritance">Specialized Actions using Protocol Inheritance</h4>
+
+<p>This gets us a good starting point to create each row, but different rows need to have different types of actions. Some of them will open a URL, one will compose an email, one will open a modal view controller, and one will toggle the dark mode app icon. Each of these different actions need a bit of unique data so each will get its own protocol to define what’s required. Let’s check them out.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protocol</span> <span class="kt">EmailMenuOption</span><span class="p">:</span> <span class="kt">MenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">address</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">protocol</span> <span class="kt">LinkableMenuOption</span><span class="p">:</span> <span class="kt">MenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">protocol</span> <span class="kt">ModalDetailMenuOption</span><span class="p">:</span> <span class="kt">MenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">controller</span><span class="p">:</span> <span class="kt">UIViewController</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">protocol</span> <span class="kt">SwitchableMenuOption</span><span class="p">:</span> <span class="kt">MenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">isOn</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span>
+    <span class="k">var</span> <span class="nv">action</span><span class="p">:</span> <span class="p">(</span><span class="kt">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now that we have the protocols defined we can create the structs to hold the data.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">struct</span> <span class="kt">EmailMenuItem</span><span class="p">:</span> <span class="kt">EmailMenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span>
+    <span class="k">var</span> <span class="nv">address</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">LinkableMenuItem</span><span class="p">:</span> <span class="kt">LinkableMenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span>
+    <span class="k">var</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">ModalDetailMenuItem</span><span class="p">:</span> <span class="kt">ModalDetailMenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span>
+    <span class="k">var</span> <span class="nv">controller</span><span class="p">:</span> <span class="kt">UIViewController</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">SwitchableMenuItem</span><span class="p">:</span> <span class="kt">SwitchableMenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span>
+    <span class="k">var</span> <span class="nv">isOn</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span>
+        <span class="k">didSet</span> <span class="p">{</span>
+            <span class="nf">action</span><span class="p">(</span><span class="n">isOn</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">var</span> <span class="nv">action</span><span class="p">:</span> <span class="p">(</span><span class="kt">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Because each of the protocols these structs conform to inherit <code class="language-plaintext highlighter-rouge">MenuOption</code> each struct needs a title and image which will populate our rows. Each struct also gets its own unique data required for each action. Here we can note again that because we extended <code class="language-plaintext highlighter-rouge">MenuOption</code> with a default value for <code class="language-plaintext highlighter-rouge">accessoryType</code> we don’t need to define that as a property in each of these structs even though it will still be accessible to us later.</p>
+
+<h4 id="populating-the-data-source">Populating the Data Source</h4>
+
+<p>Let’s now go back and populate the arrays in <code class="language-plaintext highlighter-rouge">MenuSection</code> using these structs which we can do because they conform to <code class="language-plaintext highlighter-rouge">MenuOption</code>.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">enum</span> <span class="kt">MenuSection</span> <span class="p">{</span>
+    <span class="o">...</span>
+
+    <span class="k">var</span> <span class="nv">items</span><span class="p">:</span> <span class="p">[</span><span class="kt">MenuOption</span><span class="p">]</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="k">self</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">settings</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="kt">SwitchableMenuItem</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="s">"Dark App Icon"</span><span class="p">,</span>
+                                   <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">(</span><span class="nv">systemName</span><span class="p">:</span> <span class="s">"square.fill"</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+                                   <span class="nv">isOn</span><span class="p">:</span> <span class="kt">UIApplication</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">alternateIconName</span> <span class="o">==</span> <span class="s">"Logo_Dark"</span><span class="p">,</span>
+                                   <span class="nv">action</span><span class="p">:</span> <span class="p">{</span> <span class="n">isOn</span> <span class="k">in</span>
+                                        <span class="k">if</span> <span class="n">isOn</span> <span class="p">{</span>
+                                            <span class="kt">UIApplication</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">setAlternateIconName</span><span class="p">(</span><span class="s">"Logo_Dark"</span><span class="p">)</span>
+                                        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                                            <span class="kt">UIApplication</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">setAlternateIconName</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+                                        <span class="p">}</span>
+                <span class="p">})</span>
+            <span class="p">]</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">contact</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="kt">EmailMenuItem</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="s">"Email"</span><span class="p">,</span>
+                              <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">(</span><span class="nv">systemName</span><span class="p">:</span> <span class="s">"envelope.fill"</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+                              <span class="nv">address</span><span class="p">:</span> <span class="s">"composedsoftware@gmail.com"</span><span class="p">),</span>
+                <span class="kt">LinkableMenuItem</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="s">"Twitter"</span><span class="p">,</span>
+                                 <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">(</span><span class="nv">systemName</span><span class="p">:</span> <span class="s">"text.bubble.fill"</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+                                 <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://www.twitter.com/composedpm"</span><span class="p">)</span><span class="o">!</span><span class="p">),</span>
+                <span class="kt">LinkableMenuItem</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="s">"Website"</span><span class="p">,</span>
+                                 <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">(</span><span class="nv">systemName</span><span class="p">:</span> <span class="s">"globe"</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+                                 <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://www.composedpm.com"</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">support</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="kt">ModalDetailMenuItem</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="s">"Help"</span><span class="p">,</span>
+                                    <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">(</span><span class="nv">systemName</span><span class="p">:</span> <span class="s">"questionmark.diamond.fill"</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+                                    <span class="nv">controller</span><span class="p">:</span> <span class="kt">GuideViewController</span><span class="p">()),</span>
+                <span class="kt">LinkableMenuItem</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="s">"Privacy Policy"</span><span class="p">,</span>
+                                 <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">(</span><span class="nv">systemName</span><span class="p">:</span> <span class="s">"hand.raised.fill"</span><span class="p">)</span><span class="o">!</span><span class="p">,</span>
+                                 <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://www.composedpm.com/privacy-policy"</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This gives us all the data we need to create our rows. Let’s make one small adjustment to <code class="language-plaintext highlighter-rouge">MenuSection</code> for convenience.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">enum</span> <span class="kt">MenuSection</span><span class="p">:</span> <span class="kt">CaseIterable</span> <span class="p">{</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Making <code class="language-plaintext highlighter-rouge">MenuSection</code> conform to <code class="language-plaintext highlighter-rouge">CaseIterable</code> will give us a property <code class="language-plaintext highlighter-rouge">allCases</code> which is a collection of all values for the type. This will make it easy to specify how many sections and rows there will be in our table.</p>
+
+<h2 id="applying-the-data-source">Applying the Data Source</h2>
+
+<p>Let’s jump over to our <code class="language-plaintext highlighter-rouge">UITableViewDataSource</code> implementation and see how it works.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">extension</span> <span class="kt">MenuViewController</span><span class="p">:</span> <span class="kt">UITableViewDataSource</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">numberOfSections</span><span class="p">(</span><span class="k">in</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">MenuSection</span><span class="o">.</span><span class="n">allCases</span><span class="o">.</span><span class="n">count</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">_</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">,</span> <span class="n">numberOfRowsInSection</span> <span class="nv">section</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">MenuSection</span><span class="o">.</span><span class="n">allCases</span><span class="p">[</span><span class="n">section</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">count</span>
+    <span class="p">}</span>
+
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here, we’ve defined the number of sections to be equal to the number of cases, one each for <code class="language-plaintext highlighter-rouge">settings</code>, <code class="language-plaintext highlighter-rouge">contact</code>, and <code class="language-plaintext highlighter-rouge">support</code>, and the number of rows per section to be defined by the number of items in <code class="language-plaintext highlighter-rouge">MenuSection.items</code>.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">extension</span> <span class="kt">MenuViewController</span><span class="p">:</span> <span class="kt">UITableViewDataSource</span> <span class="p">{</span>
+    <span class="o">...</span>
+
+    <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">_</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">,</span> <span class="n">cellForRowAt</span> <span class="nv">indexPath</span><span class="p">:</span> <span class="kt">IndexPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">UITableViewCell</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">item</span> <span class="o">=</span> <span class="kt">MenuSection</span><span class="o">.</span><span class="n">allCases</span><span class="p">[</span><span class="n">indexPath</span><span class="o">.</span><span class="n">section</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">indexPath</span><span class="o">.</span><span class="n">row</span><span class="p">]</span>
+        <span class="k">if</span> <span class="k">var</span> <span class="nv">item</span> <span class="o">=</span> <span class="n">item</span> <span class="k">as?</span> <span class="kt">SwitchableMenuOption</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">cell</span> <span class="o">=</span> <span class="n">tableView</span><span class="o">.</span><span class="nf">dequeueReusableCell</span><span class="p">(</span><span class="nv">withIdentifier</span><span class="p">:</span> <span class="n">kTOGGLE_CELL_ID</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="n">indexPath</span><span class="p">)</span> <span class="k">as!</span> <span class="kt">ToggleTableViewCell</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">textLabel</span><span class="p">?</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">title</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">imageView</span><span class="p">?</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">image</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">imageView</span><span class="p">?</span><span class="o">.</span><span class="n">tintColor</span> <span class="o">=</span> <span class="o">.</span><span class="n">label</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">accessoryType</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">accessoryType</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">selectionStyle</span> <span class="o">=</span> <span class="o">.</span><span class="k">none</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">toggle</span><span class="o">.</span><span class="n">isOn</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">isOn</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">toggleSwitchClosure</span> <span class="o">=</span> <span class="p">{</span> <span class="n">isOn</span> <span class="k">in</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">isOn</span> <span class="o">=</span> <span class="n">isOn</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">cell</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">cell</span> <span class="o">=</span> <span class="n">tableView</span><span class="o">.</span><span class="nf">dequeueReusableCell</span><span class="p">(</span><span class="nv">withIdentifier</span><span class="p">:</span> <span class="n">kSTANDARD_CELL_ID</span><span class="p">,</span>
+                                                     <span class="nv">for</span><span class="p">:</span> <span class="n">indexPath</span><span class="p">)</span> <span class="k">as</span> <span class="kt">UITableViewCell</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">textLabel</span><span class="p">?</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">title</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">imageView</span><span class="p">?</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">image</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">imageView</span><span class="p">?</span><span class="o">.</span><span class="n">tintColor</span> <span class="o">=</span> <span class="o">.</span><span class="n">label</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">accessoryType</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">accessoryType</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">selectionStyle</span> <span class="o">=</span> <span class="o">.</span><span class="k">default</span>
+            <span class="k">return</span> <span class="n">cell</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>There’s a little more going on here, but nothing too complicated. There are two types of cells that we need to create; one is a standard cell and one has a <code class="language-plaintext highlighter-rouge">UISwitch</code>. Because the cell with the switch is only used when the <code class="language-plaintext highlighter-rouge">MenuSection</code> item conforms to <code class="language-plaintext highlighter-rouge">SwitchableMenuOption</code> we can wrap that in an <code class="language-plaintext highlighter-rouge">if let</code> statement (in this case <code class="language-plaintext highlighter-rouge">if var</code>, more on this in a moment) and let the <code class="language-plaintext highlighter-rouge">else</code> case handle all other cells.</p>
+
+<p>Let’s look at the standard cell in the <code class="language-plaintext highlighter-rouge">else</code> case first. We set the text, image, and accessory type to the corresponding values in <code class="language-plaintext highlighter-rouge">item</code>. I’ve set <code class="language-plaintext highlighter-rouge">tintColor</code> on <code class="language-plaintext highlighter-rouge">imageView</code> to be the same color as the text label using <code class="language-plaintext highlighter-rouge">UIColor.label</code>, but you could use another color. Finally, we set <code class="language-plaintext highlighter-rouge">selectionStyle</code> to <code class="language-plaintext highlighter-rouge">.default</code> so the user gets a visual indication of their selection.</p>
+
+<p>For the cell with the switch we set all the same properties we just went over with the one difference being <code class="language-plaintext highlighter-rouge">selectionStyle</code>. Because all the interaction in that cell happens with the <code class="language-plaintext highlighter-rouge">UISwitch</code> and nothing will happen on a selection I want to visually indicate that by setting <code class="language-plaintext highlighter-rouge">selectionStyle</code> to <code class="language-plaintext highlighter-rouge">.none</code>. The additional configuration of <code class="language-plaintext highlighter-rouge">cell.toggle.isOn</code> is used to set the initial state of the <code class="language-plaintext highlighter-rouge">UISwitch</code> and the closure is simply updating the state. This is important so that if this cell were to be reloaded after the switch was toggled the state of the data source would still be correct and it would display the cell correctly.</p>
+
+<blockquote>
+  <p>Note: It is this state updating of the data source that makes us change <code class="language-plaintext highlighter-rouge">if let</code> to <code class="language-plaintext highlighter-rouge">if var</code> so that we can modify <code class="language-plaintext highlighter-rouge">item</code>.</p>
+</blockquote>
+
+<p><strong>HOWEVER,</strong> there’s still a problem here! We’re using structs which use value semantics which means that <code class="language-plaintext highlighter-rouge">if let item = item...</code> creates a copy so when the closure is called we’re modifying the copy of the data source item instead of the data source item itself. Let’s change <code class="language-plaintext highlighter-rouge">SwitchableMenuItem</code> to a class so that we can use reference semantics instead. This means that <code class="language-plaintext highlighter-rouge">if let item = item...</code> will create a reference to the data source item and so the closure will update the data source itself, truly keeping the state correct.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="kt">SwitchableMenuItem</span><span class="p">:</span> <span class="kt">SwitchableMenuOption</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">var</span> <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span>
+    <span class="k">var</span> <span class="nv">isOn</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span>
+        <span class="k">didSet</span> <span class="p">{</span>
+            <span class="nf">action</span><span class="p">(</span><span class="n">isOn</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">var</span> <span class="nv">action</span><span class="p">:</span> <span class="p">(</span><span class="kt">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span>
+
+    <span class="nf">init</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">image</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">,</span> <span class="nv">isOn</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">,</span> <span class="nv">action</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">())</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">isOn</span> <span class="o">=</span> <span class="n">isOn</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Since classes don’t have memberwise initializers we have to specify our own initializer too.</p>
+
+<h4 id="custom-uitableviewcell-with-a-uiswitch">Custom UITableViewCell with a UISwitch</h4>
+
+<p>Let’s look into the class definition of <code class="language-plaintext highlighter-rouge">ToggleTableViewCell</code> to better understand how it works.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="kt">ToggleTableViewCell</span><span class="p">:</span> <span class="kt">UITableViewCell</span> <span class="p">{</span>
+
+    <span class="k">var</span> <span class="nv">toggleSwitchClosure</span><span class="p">:</span> <span class="p">((</span><span class="kt">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">())?</span>
+    <span class="k">var</span> <span class="nv">toggle</span><span class="p">:</span> <span class="kt">UISwitch</span><span class="o">!</span>
+
+    <span class="k">override</span> <span class="nf">init</span><span class="p">(</span><span class="nv">style</span><span class="p">:</span> <span class="kt">UITableViewCell</span><span class="o">.</span><span class="kt">CellStyle</span><span class="p">,</span> <span class="nv">reuseIdentifier</span><span class="p">:</span> <span class="kt">String</span><span class="p">?)</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">style</span><span class="p">:</span> <span class="n">style</span><span class="p">,</span> <span class="nv">reuseIdentifier</span><span class="p">:</span> <span class="n">reuseIdentifier</span><span class="p">)</span>
+
+        <span class="n">toggle</span> <span class="o">=</span> <span class="kt">UISwitch</span><span class="p">()</span>
+        <span class="n">toggle</span><span class="o">.</span><span class="nf">addTarget</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="nv">action</span><span class="p">:</span> <span class="kd">#selector(</span><span class="nf">didSwitch(_:)</span><span class="kd">)</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="o">.</span><span class="n">valueChanged</span><span class="p">)</span>
+        <span class="n">accessoryView</span> <span class="o">=</span> <span class="n">toggle</span>
+    <span class="p">}</span>
+
+    <span class="kd">required</span> <span class="nf">init</span><span class="p">?(</span><span class="nv">coder</span><span class="p">:</span> <span class="kt">NSCoder</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">coder</span><span class="p">:</span> <span class="n">coder</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="kd">@objc</span> <span class="kd">func</span> <span class="nf">didSwitch</span><span class="p">(</span><span class="n">_</span> <span class="nv">sender</span><span class="p">:</span> <span class="kt">UISwitch</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">toggleSwitchClosure</span><span class="p">?(</span><span class="n">sender</span><span class="o">.</span><span class="n">isOn</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We can see that <code class="language-plaintext highlighter-rouge">ToggleTableViewCell</code> is quite similar to its superclass <code class="language-plaintext highlighter-rouge">UITableViewCell</code>. When initialized we create a <code class="language-plaintext highlighter-rouge">UISwitch</code>, tell it to call <code class="language-plaintext highlighter-rouge">didSwitch(_:)</code> whenever its value changes, and assign it to the <code class="language-plaintext highlighter-rouge">accessoryView</code> of the cell. <code class="language-plaintext highlighter-rouge">didSwitch(_:)</code> calls the closure and passes it the state of the switch’s <code class="language-plaintext highlighter-rouge">isOn</code> property.</p>
+
+<h4 id="reusable-cells">Reusable Cells</h4>
+
+<p>Back in the <code class="language-plaintext highlighter-rouge">UITableViewDataSource</code> implementation, notice that we need to register any class for reuse by the table view when using <code class="language-plaintext highlighter-rouge">dequeueReusableCell</code> so let’s add the following to <code class="language-plaintext highlighter-rouge">viewDidLoad()</code>.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tableView</span><span class="o">.</span><span class="nf">register</span><span class="p">(</span><span class="kt">ToggleTableViewCell</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">forCellReuseIdentifier</span><span class="p">:</span> <span class="n">kTOGGLE_CELL_ID</span><span class="p">)</span>
+<span class="n">tableView</span><span class="o">.</span><span class="nf">register</span><span class="p">(</span><span class="kt">UITableViewCell</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">forCellReuseIdentifier</span><span class="p">:</span> <span class="n">kSTANDARD_CELL_ID</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>And we’ll also set the reuse identifiers as constant properties on our view controller.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="nv">kTOGGLE_CELL_ID</span> <span class="o">=</span> <span class="s">"ToggleCellID"</span>
+<span class="k">let</span> <span class="nv">kSTANDARD_CELL_ID</span> <span class="o">=</span> <span class="s">"StandardCellID"</span>
+</code></pre></div></div>
+
+<h4 id="section-headers">Section Headers</h4>
+
+<p>Let’s wrap up the <code class="language-plaintext highlighter-rouge">UITableViewDataSource</code> implementation by setting the title for each section.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">extension</span> <span class="kt">MenuViewController</span><span class="p">:</span> <span class="kt">UITableViewDataSource</span> <span class="p">{</span>
+    <span class="o">...</span>
+
+    <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">_</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">,</span> <span class="n">titleForHeaderInSection</span> <span class="nv">section</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="p">?</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">MenuSection</span><span class="o">.</span><span class="n">allCases</span><span class="p">[</span><span class="n">section</span><span class="p">]</span><span class="o">.</span><span class="n">title</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To get the same type of table view layout I have, set the table view style to <code class="language-plaintext highlighter-rouge">.grouped</code> when initializing it.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="nv">tableViewController</span> <span class="o">=</span> <span class="kt">UITableViewController</span><span class="p">(</span><span class="nv">style</span><span class="p">:</span> <span class="o">.</span><span class="n">grouped</span><span class="p">)</span>
+<span class="c1">// or</span>
+<span class="k">let</span> <span class="nv">tableView</span> <span class="o">=</span> <span class="kt">UITableView</span><span class="p">(</span><span class="nv">frame</span><span class="p">:</span> <span class="n">aFrame</span><span class="p">,</span> <span class="nv">style</span><span class="p">:</span> <span class="o">.</span><span class="n">grouped</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>We’re almost there!</strong></p>
+
+<h2 id="handling-cell-selection">Handling Cell Selection</h2>
+
+<p>We’ve created the data source, applied it to the table, and now we’re going to make it usable by intercepting the user actions! Below, we define <code class="language-plaintext highlighter-rouge">tableView(_:didSelectRowAt:)</code> and give the different menu items that we created different actions.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">extension</span> <span class="kt">MenuViewController</span><span class="p">:</span> <span class="kt">UITableViewDelegate</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">_</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">,</span> <span class="n">didSelectRowAt</span> <span class="nv">indexPath</span><span class="p">:</span> <span class="kt">IndexPath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">item</span> <span class="o">=</span> <span class="kt">MenuSection</span><span class="o">.</span><span class="n">allCases</span><span class="p">[</span><span class="n">indexPath</span><span class="o">.</span><span class="n">section</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">indexPath</span><span class="o">.</span><span class="n">row</span><span class="p">]</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">_</span> <span class="o">=</span> <span class="n">item</span> <span class="k">as?</span> <span class="kt">SwitchableMenuOption</span> <span class="p">{</span>
+            <span class="k">return</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">item</span> <span class="o">=</span> <span class="n">item</span> <span class="k">as?</span> <span class="kt">EmailMenuOption</span> <span class="p">{</span>
+            <span class="nf">composeMail</span><span class="p">(</span><span class="nv">to</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">item</span> <span class="o">=</span> <span class="n">item</span> <span class="k">as?</span> <span class="kt">LinkableMenuOption</span> <span class="p">{</span>
+            <span class="nf">openURL</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">item</span> <span class="o">=</span> <span class="n">item</span> <span class="k">as?</span> <span class="kt">ModalDetailMenuOption</span> <span class="p">{</span>
+            <span class="nf">present</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">controller</span><span class="p">,</span> <span class="nv">animated</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">tableView</span><span class="o">.</span><span class="nf">deselectRow</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">indexPath</span><span class="p">,</span> <span class="nv">animated</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We access the menu item and then use <code class="language-plaintext highlighter-rouge">if let</code> statements to check if it conforms to the different protocols. This let’s us safely access the unique data for the different types of actions without forcibly unwrapping.</p>
+
+<p>Let’s go through each case.</p>
+<ul>
+  <li>For <code class="language-plaintext highlighter-rouge">SwitchableMenuOption</code> we don’t actually want a tap on the cell to do anything because we’re handing the action when the user interacts with the <code class="language-plaintext highlighter-rouge">UISwitch</code>.</li>
+  <li>For <code class="language-plaintext highlighter-rouge">EmailMenuOption</code> we call a custom method, <code class="language-plaintext highlighter-rouge">composeMail(to:)</code>, and pass it the address for the recipient.</li>
+  <li>For <code class="language-plaintext highlighter-rouge">LinkableMenuOption</code> we call a custom method, <code class="language-plaintext highlighter-rouge">openURL()</code>, and pass it the URL to open.</li>
+  <li>And for <code class="language-plaintext highlighter-rouge">ModalDetailMenuOption</code> we call the <code class="language-plaintext highlighter-rouge">UIViewController</code> method <code class="language-plaintext highlighter-rouge">present(_:animated:completion:)</code>.</li>
+</ul>
+
+<h2 id="recap">Recap</h2>
+
+<p>So what have we done?</p>
+<ul>
+  <li>Create a data source for our table using an enum.</li>
+  <li>Create specialized structs (and a class) that conform to a generic protocol used to define the cells of the table.</li>
+  <li>Applied the data source to the table and conditionally handled the user interactions.</li>
+</ul>
+
+
+
+</div>
+  </main>
+
+  <footer class="mt-auto py-3 text-center">
+
+  <small class="text-muted mb-2">
+    <i class="fas fa-code"></i> with <i class="fas fa-heart"></i>
+    by <strong>Patrick Veilleux</strong>
+  </small>
+
+  <div class="container-fluid justify-content-center"><a class="social mx-1"  href="mailto:pdveilleux.dev@gmail.com"
+       style="color: #6c757d"
+       onMouseOver="this.style.color='#db4437'"
+       onMouseOut="this.style.color='#6c757d'">
+      <i class="fas fa-envelope fa-1x"></i>
+    </a><a class="social mx-1"  href="https://www.github.com/pdveilleux"
+       style="color: #6c757d"
+       onMouseOver="this.style.color='#333333'"
+       onMouseOut="this.style.color='#6c757d'">
+      <i class="fab fa-github fa-1x"></i>
+    </a><a class="social mx-1"  href="https://www.linkedin.com/in/pdveilleux"
+       style="color: #6c757d"
+       onMouseOver="this.style.color='#007bb5'"
+       onMouseOut="this.style.color='#6c757d'">
+      <i class="fab fa-linkedin-in fa-1x"></i>
+    </a><a class="social mx-1"  href="https://www.twitter.com/pdveilleux"
+       style="color: #6c757d"
+       onMouseOver="this.style.color='#1da1f2'"
+       onMouseOut="this.style.color='#6c757d'">
+      <i class="fab fa-twitter fa-1x"></i>
+    </a>
+
+</div><small id="attribution">
+    theme <a href="https://github.com/YoussefRaafatNasry/portfolYOU">portfolYOU</a>
+  </small>
+  
+</footer>
+  
+  <!-- GitHub Buttons -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+
+<!-- jQuery CDN -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- Popper.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+
+<!-- Bootstrap JS CDN -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<!-- wow.js CDN & Activation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.js"></script>
+<script> new WOW().init(); </script>
+
+<!-- Initialize all tooltips -->
+<script>
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+
+</body>
+
+</html>

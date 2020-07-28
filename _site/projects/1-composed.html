@@ -58,7 +58,33 @@
 
 </nav>
   <div class="col-lg-10 mx-auto mt-5 post">
-  
+  <h1 id="composed">Composed</h1>
+
+<p>Composed gives you a unique way to track the progress of your tasks and projects and know if you’re on schedule. It can be overwhelming to think about what there is to do but with Composed you can stay on top of it all and feel relaxed too. Progress bars and an intuitive color scheme let you quickly understand how things are going.</p>
+
+<figure class="figure w-100">
+  <img src="/assets/projects/composed-header.png" class="figure-img img-fluid rounded" alt="" /></figure>
+
+<h2 id="core-concept---taskproject">Core Concept - TaskProject</h2>
+
+<p>One of the most important foundational decisions in developing Composed was to decide how to handle the differences and similarities between tasks and projects. When using the original version I made back in 2013 one of the changes I desired was the ability to create sub-projects which would support any number of tiered lists and therefore more advanced and complex lists of things that I needed to do.</p>
+
+<p>Because I had this goal for this rebuilt version of Composed I knew tasks and projects would have to be treated quite similarly. And with the decision that each task could also receive its own due date, notes, and notifications, the two are almost identical in structure.</p>
+
+<p>So here’s where TaskProject comes into play.</p>
+
+<p>Tasks and projects are both the same type: <code class="language-plaintext highlighter-rouge">TaskProject</code>. When needed, I can differentiate between the two types by using a computed property <code class="language-plaintext highlighter-rouge">kind</code> which checks to see how many children (which are also of type <code class="language-plaintext highlighter-rouge">TaskProject</code>) it has and returns either <code class="language-plaintext highlighter-rouge">.task</code> or <code class="language-plaintext highlighter-rouge">.project</code>, which are cases in an enum, such that if there are no children it’s a task and if there are any it’s a project.</p>
+
+<p>What this allows me to do is easily convert a task to a project and vice versa just by adding or removing children.</p>
+
+<h4 id="learn-more">Learn More</h4>
+
+<ul>
+  <li>For more reading on the development of Composed check out <a href="/blog/tags">my blog articles</a> and look under “Composed.”</li>
+  <li>Download <a href="https://apps.apple.com/us/app/composed-tasks-and-projects/id1511037239?mt=8">Composed on the App Store</a></li>
+  <li>Check out <a href="https://www.twitter.com/composedpm">Composed on Twitter</a></li>
+  <li>Visit <a href="https://www.composedpm.com">Composed’s homepage</a></li>
+</ul>
 
 </div>
   </main>
