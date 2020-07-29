@@ -36,9 +36,9 @@ enum MenuSection {
 
     var title: String {
         switch self {
-        case .settings:         return "Settings"
-        case .contact:          return "Reach out"
-        case .support:          return "Help"
+        case .settings:     return "Settings"
+        case .contact:      return "Reach out"
+        case .support:      return "Help"
         }
     }
 }
@@ -108,32 +108,32 @@ Now that we have the protocols defined we can create the structs to hold the dat
 
 ```swift
 struct EmailMenuItem: EmailMenuOption {
-    var title: String
-    var image: UIImage
-    var address: String
+    let title: String
+    let image: UIImage
+    let address: String
 }
 
 struct LinkableMenuItem: LinkableMenuOption {
-    var title: String
-    var image: UIImage
-    var url: URL
+    let title: String
+    let image: UIImage
+    let url: URL
 }
 
 struct ModalDetailMenuItem: ModalDetailMenuOption {
-    var title: String
-    var image: UIImage
-    var controller: UIViewController
+    let title: String
+    let image: UIImage
+    let controller: UIViewController
 }
 
 struct SwitchableMenuItem: SwitchableMenuOption {
-    var title: String
-    var image: UIImage
+    let title: String
+    let image: UIImage
     var isOn: Bool {
         didSet {
             action(isOn)
         }
     }
-    var action: (Bool) -> ()
+    let action: (Bool) -> ()
 }
 ```
 
@@ -224,17 +224,18 @@ extension MenuViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = MenuSection.allCases[indexPath.section].items[indexPath.row]
-        if var item = item as? SwitchableMenuOption {
-            let cell = tableView.dequeueReusableCell(withIdentifier: kTOGGLE_CELL_ID, for: indexPath) as! ToggleTableViewCell
+        if var item = item as? SwitchableMenuOption,
+            let cell = tableView.dequeueReusableCell(withIdentifier: kTOGGLE_CELL_ID,
+                                                     for: indexPath) as? ToggleTableViewCell {
             cell.textLabel?.text = item.title
             cell.imageView?.image = item.image
             cell.imageView?.tintColor = .label
             cell.accessoryType = item.accessoryType
-            cell.selectionStyle = .none
             cell.toggle.isOn = item.isOn
             cell.toggleSwitchClosure = { isOn in
                 item.isOn = isOn
             }
+            cell.selectionStyle = .none
             return cell
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: kSTANDARD_CELL_ID,
